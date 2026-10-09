@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci-ok:
+    name: ci-ok
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect project
+        id: detect
+        run: |
+          if [ -f Cargo.toml ]; then
+            echo "rust=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Cargo.toml does not exist yet, checks will be skipped."
+          fi
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.detect.outputs.rust == 'true'
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+        if: steps.detect.outputs.rust == 'true'
+
+      - name: Format
+        if: steps.detect.outputs.rust == 'true'
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        if: steps.detect.outputs.rust == 'true'
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Test
+        if: steps.detect.outputs.rust == 'true'
+        run: cargo test --workspace
+
+      - name: Licenses and vulnerabilities (cargo-deny)
+        if: steps.detect.outputs.rust == 'true'
+        run: |
+          cargo install --locked cargo-deny
+          cargo deny check advisories licenses bans sources
+
+      - name: Dockerfile lint (hadolint)
+        if: hashFiles('Dockerfile') != ''
+        run: docker run --rm -i hadolint/hadolint < Dockerfile
