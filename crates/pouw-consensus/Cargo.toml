@@ -1,0 +1,20 @@
+[package]
+name = "pouw-consensus"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "pouw-consensus.rs"
+
+[dependencies]
+borsh.workspace = true
+pouw-crypto.workspace = true
+pouw-provers.workspace = true
+pouw-types.workspace = true
+ruint.workspace = true
+thiserror.workspace = true

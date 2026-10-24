@@ -1,0 +1,21 @@
+[package]
+name = "pouw-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "pouw-api.rs"
+
+[dependencies]
+pouw-crypto.workspace = true
+pouw-types.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+time.workspace = true
+

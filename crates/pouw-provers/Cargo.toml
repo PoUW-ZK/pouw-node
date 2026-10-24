@@ -1,0 +1,21 @@
+[package]
+name = "pouw-provers"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "pouw-provers.rs"
+
+[features]
+default = ["groth16"]
+groth16 = []
+
+[dependencies]
+pouw-crypto.workspace = true
+pouw-types.workspace = true
+thiserror.workspace = true

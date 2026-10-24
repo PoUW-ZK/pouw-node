@@ -1,0 +1,29 @@
+{
+  "network": "devnet",
+  "params": {
+    "chain_id": 1,
+    "initial_subsidy": 83333333,
+    "halving_interval": 12600000,
+    "target_block_secs": 10,
+    "half_life_secs": 2880,
+    "initial_target": "0000003fffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "pow_limit": "00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "max_future_secs": 120,
+    "fee_per_public_input": 1,
+    "fee_per_witness_kib": 1
+  },
+  "genesis": {
+    "timestamp": 1792790429,
+    "miner": "addr:0000000000000000000000000000000000000000000000000000000000000000",
+    "target": "0000003fffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "nonce": 0
+  },
+  "allocations": [
+    {
+      "address": "addr:8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c",
+      "amount": 100000000000000
+    }
+  ],
+  "min_chain_work": "0000000000000000000000000000000000000000000000000000000000000000",
+  "expected_genesis_id": "blk:b54b0129cd73859ee4dc35bb500bd3e885e10149177e109b293e223188a4988a"
+}

@@ -1,0 +1,17 @@
+[package]
+name = "pouw-light-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "pouw-light-client.rs"
+
+[dependencies]
+pouw-crypto.workspace = true
+pouw-types.workspace = true
+thiserror.workspace = true

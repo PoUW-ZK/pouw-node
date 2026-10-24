@@ -1,0 +1,23 @@
+[package]
+name = "pouw-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "pouw"
+path = "pouw-cli.rs"
+
+[dependencies]
+borsh.workspace = true
+clap.workspace = true
+hex.workspace = true
+pouw-crypto.workspace = true
+pouw-light-client.workspace = true
+pouw-types.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

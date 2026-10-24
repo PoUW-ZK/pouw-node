@@ -1,5 +1,6 @@
-# Local checks before every commit
-#   pip install pre-commit   (or: brew install pre-commit)
+# Local checks before every commit: generic file hygiene, gitleaks, and the Rust
+# checks (rustfmt, cargo check, clippy) over the whole workspace.
+#   pipx install pre-commit   (or the distro package)
 #   pre-commit install
 # Updating versions: pre-commit autoupdate
 repos:
@@ -21,3 +22,24 @@ repos:
     rev: v8.21.2
     hooks:
       - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        entry: cargo fmt --all --check
+        language: system
+        pass_filenames: false
+        files: (\.rs|Cargo\.toml|Cargo\.lock|rustfmt\.toml)$
+      - id: cargo-check
+        name: cargo check
+        entry: cargo check --workspace --all-targets --all-features
+        language: system
+        pass_filenames: false
+        files: (\.rs|Cargo\.toml|Cargo\.lock)$
+      - id: cargo-clippy
+        name: cargo clippy
+        entry: cargo clippy --workspace --all-targets --all-features -- -D warnings
+        language: system
+        pass_filenames: false
+        files: (\.rs|Cargo\.toml|Cargo\.lock)$

@@ -43,17 +43,32 @@ jobs:
 
       - name: Clippy
         if: steps.detect.outputs.rust == 'true'
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
 
       - name: Test
         if: steps.detect.outputs.rust == 'true'
-        run: cargo test --workspace
+        run: cargo test --workspace --all-features --locked
+
+      - name: Docs
+        if: steps.detect.outputs.rust == 'true'
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --workspace --no-deps --all-features --locked
+
+      - name: Light client stays independent
+        if: steps.detect.outputs.rust == 'true'
+        run: |
+          cargo build --locked -p pouw-light-client
+          if cargo tree --locked -p pouw-light-client -e normal --prefix none --format '{lib}' | grep -E '^pouw_(node|prover|consensus)'; then
+            echo "::error::pouw-light-client depends on the node, consensus or a prover crate"
+            exit 1
+          fi
 
       - name: Licenses and vulnerabilities (cargo-deny)
         if: steps.detect.outputs.rust == 'true'
         run: |
           cargo install --locked cargo-deny
-          cargo deny check advisories licenses bans sources
+          cargo deny check
 
       - name: Dockerfile lint (hadolint)
         if: hashFiles('Dockerfile') != ''
