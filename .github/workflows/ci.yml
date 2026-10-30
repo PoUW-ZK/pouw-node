@@ -73,3 +73,18 @@ jobs:
       - name: Dockerfile lint (hadolint)
         if: hashFiles('Dockerfile') != ''
         run: docker run --rm -i ghcr.io/hadolint/hadolint < Dockerfile
+
+      # The image that pouw-deploy runs as node-1: the node must start and keep running
+      # TODO pouw-node#59: curl http://localhost:8000/health once the node serves its API
+      - name: Docker image starts
+        if: hashFiles('Dockerfile') != ''
+        run: |
+          docker build -t pouw-node:ci .
+          docker run -d --name node pouw-node:ci
+          sleep 15
+          if [ "$(docker inspect -f '{{.State.Running}}' node)" != true ]; then
+            docker logs node
+            echo "::error::The node exited right after the start"
+            exit 1
+          fi
+          docker logs node 2>&1 | tail -20

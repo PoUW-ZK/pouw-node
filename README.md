@@ -26,6 +26,14 @@ with its issue number, see `docs/FOR-ILIA.md`.
 Default features are all features. A slim binary names the ones it wants:
 `cargo build -p pouw-node --no-default-features --features store-mem`.
 
+## Docker and the whole network
+
+`Dockerfile` builds the image that pouw-deploy runs as `node-1`
+(`ghcr.io/pouw-zk/pouw-node`, published from `main` by `docker.yml`). The node in it
+keeps its key in `/data` and takes the same `POUW_*` variables. To run the whole network
+with your local changes, clone pouw-deploy next to this repository and run `make dev`
+there.
+
 ## Environment
 
 The node reads `POUW_*` variables, an unknown one is an error. `RUST_LOG` filters the
