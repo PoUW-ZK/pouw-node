@@ -303,10 +303,31 @@ fn put(store: &mut store::Store, block: &Block) -> BlockId {
     id
 }
 
+/// A balance for every test key (the seeds 0 to 255), so that blocks which spend pass the
+/// state transition.
+fn funded() -> StateDiff {
+    let mut diff = StateDiff::default();
+    for seed in 0..=u8::MAX {
+        let address = SigningKey::from_seed([seed; 32]).address();
+        let account = pouw_types::Account {
+            balance: Amount(1_000_000),
+            nonce: Nonce(0),
+        };
+        diff.accounts.insert(
+            address,
+            Change {
+                before: None,
+                after: Some(account),
+            },
+        );
+    }
+    diff
+}
+
 fn with_genesis(h: &mut Harness) -> Block {
     let genesis = genesis_block();
     let id = put(&mut h.state.store, &genesis);
-    store::connect_block(&mut h.state.store, &id, &[], &StateDiff::default()).unwrap();
+    store::connect_block(&mut h.state.store, &id, &[], &funded()).unwrap();
     genesis
 }
 
@@ -404,6 +425,7 @@ fn tip_height(h: &Harness) -> Option<Height> {
 #[test]
 fn a_checked_tx_is_pooled_once() {
     let mut h = harness();
+    with_genesis(&mut h);
     let valid = gossip(&mut h, Gossip::Tx(Box::new(checked_tx(transfer(CHAIN, 0)))));
     let duplicate = gossip(&mut h, Gossip::Tx(Box::new(checked_tx(transfer(CHAIN, 0)))));
     run(&mut h);
@@ -738,6 +760,7 @@ fn a_full_command_channel_drops_the_verdict_and_the_loop_goes_on() {
     let mut h = harness();
     h.state.network = network;
     h.outbound = outbound;
+    with_genesis(&mut h);
     let first = gossip(&mut h, Gossip::Tx(Box::new(checked_tx(transfer(CHAIN, 0)))));
     gossip(&mut h, Gossip::Tx(Box::new(checked_tx(transfer(CHAIN, 1)))));
     run(&mut h);
@@ -829,6 +852,7 @@ fn api_reads_are_answered_from_the_store() {
 #[test]
 fn a_submitted_tx_is_broadcast_only_when_pooled() {
     let mut h = harness();
+    with_genesis(&mut h);
     let (first, mut first_answer) = oneshot::channel();
     let (again, mut again_answer) = oneshot::channel();
     for reply in [first, again] {
@@ -1080,6 +1104,7 @@ fn a_component_that_fails_stops_the_loop_and_one_that_finishes_does_not() {
 #[test]
 fn a_transport_that_is_gone_is_a_fault_not_a_warning() {
     let mut h = harness();
+    with_genesis(&mut h);
     drop(std::mem::replace(&mut h.outbound, mpsc::channel(1).1));
     let (reply, mut answer) = oneshot::channel();
     to_api(
@@ -1430,7 +1455,7 @@ fn with_circuit(h: &mut Harness) -> Block {
         verifying_key: keys.verifying_key,
         circuit: Box::from(CIRCUIT),
     };
-    let mut diff = StateDiff::default();
+    let mut diff = funded();
     let change = Change {
         before: None,
         after: Some(entry),
